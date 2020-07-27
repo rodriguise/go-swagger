@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-openapi/inflect"
 	"github.com/go-openapi/swag"
+	"github.com/iancoleman/strcase"
 	"github.com/kr/pretty"
 )
 
@@ -50,7 +51,7 @@ func DefaultFuncMap(lang *LanguageOpts) template.FuncMap {
 		"camelize":  swag.ToJSONName,
 		"varname":   lang.MangleVarName,
 		"humanize":  swag.ToHumanNameLower,
-		"snakize":   lang.MangleFileName,
+		"snakize":   strcase.ToSnake,
 		"toPackagePath": func(name string) string {
 			return filepath.FromSlash(lang.ManglePackagePath(name, ""))
 		},

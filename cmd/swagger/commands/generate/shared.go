@@ -112,7 +112,7 @@ func (w WithShared) getConfigFile() string {
 type sharedOptions struct {
 	Spec                  flags.Filename `long:"spec" short:"f" description:"the spec file to use (default swagger.{json,yml,yaml})" group:"shared"`
 	Target                flags.Filename `long:"target" short:"t" default:"./" description:"the base directory for generating the files" group:"shared"`
-	Template              string         `long:"template" description:"load contributed templates" choice:"stratoscale" group:"shared"`
+	Template              string         `long:"template" description:"load contributed templates" choice:"atomic" group:"shared"`
 	TemplateDir           flags.Filename `long:"template-dir" short:"T" description:"alternative template override directory" group:"shared"`
 	ConfigFile            flags.Filename `long:"config-file" short:"C" description:"configuration file to use for overriding template options" group:"shared"`
 	CopyrightFile         flags.Filename `long:"copyright-file" short:"r" description:"copyright file used to add copyright header" group:"shared"`

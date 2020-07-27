@@ -1,0 +1,29 @@
+# build stage
+FROM golang:alpine AS build-env
+
+RUN  mkdir -p /go/src \
+    && mkdir -p /go/bin \
+    && mkdir -p /go/pkg
+
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:$PATH
+ENV PKGROOT=$GOPATH/src/github.com/go-swagger/go-swagger
+
+# now copy your app to the proper build path
+RUN mkdir -p $PKGROOT
+ADD . $PKGROOT
+
+# should be able to build now
+WORKDIR $PKGROOT
+RUN go build -o $GOPATH/bin/swagger ./cmd/swagger
+
+# final stage
+FROM golang:alpine
+RUN mkdir /app
+WORKDIR /app
+ENV GOPATH=/go
+ENV PATH=/app:$GOPATH/bin:$PATH
+COPY --from=build-env $GOPATH/bin/swagger /app/
+
+ENV GOPATH=/go
+ENTRYPOINT ["/app/swagger"]

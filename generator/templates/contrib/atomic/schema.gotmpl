@@ -107,3 +107,23 @@ func ({{.ReceiverName}} {{ if or .IsTuple .IsComplexObject .IsAdditionalProperti
   // At this moment, the base type property is pushed down to the subtype
   {{- end }}
 {{- end }}
+
+// Value returns {{ pascalize .Name }} as a value that can be stored as json in the database
+func ({{.ReceiverName}} {{ if or (not .IsExported) .Discriminates }}{{ camelize .Name }}{{ else }}{{ pascalize .Name }}{{ end }}) Value() (driver.Value, error) {
+	return json.Marshal({{.ReceiverName}})
+}
+
+// Scan reads a json value from the database into a {{ pascalize .Name }}
+func ({{.ReceiverName}} {{ if or .IsTuple .IsComplexObject .IsAdditionalProperties }}*{{ end }}{{ if or (not .IsExported) .Discriminates }}{{ camelize .Name }}{{ else }}{{ pascalize .Name }}{{ end }}) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New(http.StatusInternalServerError, "type assertion to []byte failed")
+	}
+
+	if err := json.Unmarshal(b, &{{.ReceiverName}}); err != nil {
+		return err
+	}
+
+
+	return nil
+}

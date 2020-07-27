@@ -13,5 +13,9 @@ func contribOptionsOverride(opts *generator.GenOpts) {
 		opts.RegenerateConfigureAPI = true
 		// It also does not use the main.go
 		opts.IncludeMain = false
+	case "atomic":
+		opts.RegenerateConfigureAPI = false
+		opts.AllowTemplateOverride = true
+		opts.IncludeMain = false
 	}
 }

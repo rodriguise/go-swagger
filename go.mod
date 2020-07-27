@@ -19,6 +19,7 @@ require (
 	github.com/go-swagger/scan-repo-boundary v0.0.0-20180623220736-973b3573c013
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gorilla/handlers v1.4.2
+	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kr/pretty v0.2.0
 	github.com/mitchellh/mapstructure v1.3.2
