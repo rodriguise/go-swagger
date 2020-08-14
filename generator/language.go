@@ -109,6 +109,8 @@ func (l *LanguageOpts) ManglePackagePath(name string, suffix string) string {
 // FormatContent formats a file with a language specific formatter
 func (l *LanguageOpts) FormatContent(name string, content []byte) ([]byte, error) {
 	if l.formatFunc != nil {
+		log.Printf("formatting %q", name)
+
 		return l.formatFunc(name, content)
 	}
 	return content, nil

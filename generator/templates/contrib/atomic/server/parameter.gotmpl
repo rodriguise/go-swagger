@@ -302,7 +302,7 @@ import (
 // with the default values initialized.{{ else -}}
 // no default values defined in spec.
 {{- end }}
-func New{{ pascalize .Name }}Params() *{{ pascalize .Name }}Params {
+func New{{ pascalize .Name }}Params() {{ pascalize .Name }}Params {
 {{ if .Params.HasSomeDefaults }}
   var (
   // initialize parameters with default values
@@ -339,7 +339,7 @@ func New{{ pascalize .Name }}Params() *{{ pascalize .Name }}Params {
   {{ end -}}
 {{- end }}
 {{ end }}
-  return &{{ pascalize .Name }}Params{ {{ range .Params }}{{ if .HasDefault }}
+  return {{ pascalize .Name }}Params{ {{ range .Params }}{{ if .HasDefault }}
     {{ pascalize .ID}}: {{ if and (not .IsArray) (not .HasDiscriminator) (not .IsInterface) (not .IsStream) .IsNullable }}&{{ end }}{{ varname .ID }}Default,
   {{ end }}{{ end }} }
 }
@@ -352,6 +352,8 @@ type {{ pascalize .Name }}Params struct {
 
   // HTTP Request Object
   HTTPRequest *http.Request `json:"-"`
+
+  HTTPResponse http.ResponseWriter `json:"-"`
 
   {{ range .Params }}/*{{ if .Description }}{{ blockcomment .Description }}{{ end }}{{ if .Required }}
   Required: true{{ end }}{{ if .Maximum }}
@@ -373,12 +375,29 @@ type {{ pascalize .Name }}Params struct {
   {{ end}}
 }
 
+func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) RW() (*http.Request, http.ResponseWriter) {
+  return {{ .ReceiverName }}.HTTPRequest, {{ .ReceiverName }}.HTTPResponse
+}
+
+func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) WR() (http.ResponseWriter, *http.Request) {
+  return {{ .ReceiverName }}.HTTPResponse, {{ .ReceiverName }}.HTTPRequest
+}
+
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with New{{ pascalize .Name }}Params() beforehand.
-func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) BindRequest(r *http.Request, c...runtime.Consumer) error {
+func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) BindRequest(w http.ResponseWriter, r *http.Request, c...runtime.Consumer) error {
+  return {{ .ReceiverName }}.BindRequestW(nil, r, c...)
+}
+
+// BindRequestW both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
+// for simple values it will use straight method calls.
+//
+func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) BindRequestW(w http.ResponseWriter, r *http.Request, c...runtime.Consumer) error {
   var res []error
+
+  // ensure defaults
+  *{{ .ReceiverName }} = New{{ pascalize .Name }}Params()
 
   vars := mux.Vars(r)
   route := struct {
@@ -402,6 +421,7 @@ func ({{ .ReceiverName }} *{{ pascalize .Name }}Params) BindRequest(r *http.Requ
   } 
 
   {{ .ReceiverName }}.HTTPRequest = r
+  {{ .ReceiverName }}.HTTPResponse = w
 
   {{ if .HasQueryParams }}qs := runtime.Values(r.URL.Query()){{ end }}
 

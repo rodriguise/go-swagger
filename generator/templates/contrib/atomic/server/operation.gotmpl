@@ -8,6 +8,9 @@ package {{ .Package }}
 import (
 	"context"
 	"net/http"
+  "github.com/go-openapi/swag"
+  "github.com/go-openapi/errors"
+
   {{ range .DefaultImports }}{{ printf "%q" . }}
   {{ end }}
 )
